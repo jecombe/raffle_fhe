@@ -72,7 +72,7 @@ contract Ticket is GatewayCaller, EncryptedERC20 {
         eTaxes.eAmountFeesFactory = TFHE.asEuint64(0);
         closestDifference = TFHE.asEuint64(type(uint64).max);
 
-        eWinner = TFHE.asEaddress(0x8ba1f109551bD432803012645Ac136ddd64DBA72);
+        eWinner = TFHE.asEaddress(address(0));
         eNumberWin = TFHE.asEuint64(0);
 
         NO_ERROR = TFHE.asEuint8(0);
