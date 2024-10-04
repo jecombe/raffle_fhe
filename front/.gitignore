@@ -1,29 +1,48 @@
-# directories
-.coverage_artifacts
-.coverage_cache
-.coverage_contracts
-artifacts
-build
-cache
-coverage
-dist
-node_modules
-types
-deployments
-kms-fhe-keys/
-network-fhe-keys/
+# Node.js
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
 
-# files
-*.env
+# Build output
+.next/
+out/
+dist/
+
+# Dependency directories
+/.pnp
+.pnp.js
+
+# TypeScript
+*.tsbuildinfo
+
+# Static files
+public/static
+
+# Testing
+coverage/
+*.lcov
+
+# Environment variables
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Logs
+logs
 *.log
-.env.docker
-.DS_Store
-.pnp.*
-coverage.json
-package-lock.json
-yarn.lock
+npm-debug.log*
+yarn-debug.log*
+pnpm-debug.log*
 
-res/
-running_node/
+# Vercel/Netlify
+.vercel
+.netlify
 
-docker-compose/docker-compose-full.yml
+# VS Code
+.vscode/*
+
+#
