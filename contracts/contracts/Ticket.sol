@@ -8,9 +8,6 @@ import "./interfaces/IEncryptedERC20.sol";
 import "./encryptedErc20/EncryptedERC20.sol";
 
 contract Ticket is GatewayCaller, EncryptedERC20 {
-    IEncryptedERC20 public token;
-    uint256 public endTime = 0;
-
     //STRUCT
     struct Participant {
         eaddress eAddress;
@@ -32,6 +29,9 @@ contract Ticket is GatewayCaller, EncryptedERC20 {
         euint8 error;
         uint timestamp;
     }
+
+    IEncryptedERC20 public token;
+    uint256 public endTime = 0;
 
     Taxes private eTaxes;
     Owners public owners;
@@ -212,7 +212,6 @@ contract Ticket is GatewayCaller, EncryptedERC20 {
         );
     }
 
-
     function distributeProfits() internal {
         euint64 totalAmount = token.balanceOf(address(this));
         TFHE.allow(totalAmount, address(this));
@@ -233,7 +232,6 @@ contract Ticket is GatewayCaller, EncryptedERC20 {
             ZERO
         );
     }
-
 
     function pickWinner() external {
         require(!isFinish, "Tombola is over");
