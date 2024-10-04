@@ -16,6 +16,9 @@ contract Ticket is GatewayCaller, EncryptedERC20 {
         uint timestamp;
     }
 
+    uint256 public ticketPrice = 0 ether;
+    uint limitedTicket = 0;
+
     //Encrypted Errors management variable
     euint8 internal NO_ERROR;
     euint8 internal ERROR;
@@ -35,6 +38,12 @@ contract Ticket is GatewayCaller, EncryptedERC20 {
         NO_ERROR = TFHE.asEuint8(0);
         ERROR = TFHE.asEuint8(1);
         ZERO = TFHE.asEuint64(0);
+    }
+
+    function start(uint256 _ticketPrice, uint256 _duration, uint256 _limitedTicked) public {
+        ticketPrice = _ticketPrice;
+        endTime = block.timestamp + _duration;
+        limitedTicket = _limitedTicked;
     }
 
     function buyTicket(einput _eUser, einput _eAmount, bytes calldata inputProof) external {
