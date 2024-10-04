@@ -149,6 +149,20 @@ contract Ticket is GatewayCaller, EncryptedERC20 {
         TFHE.allow(eUser, address(this));
 
         euint64 randomNumber = TFHE.randEuint64();
+        
+        TFHE.allow(randomNumber, address(this));
+        TFHE.allow(randomNumber, msg.sender);
+
+        participants[participantsLength] = Participant(eUser, randomNumber);
+
+        require(
+            token.transferFrom(msg.sender, address(this), _eAmount, inputProof),
+            "echec transferFrom deposit erc20 to smart contract"
+        );
+
+        participantsLength += 1;
+
+        emit TicketPurchased(msg.sender);
     }
 
     function claimTokensWinner() external onlyWinner {
