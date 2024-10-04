@@ -25,6 +25,8 @@ describe("TicketFactory", function () {
 
     const tx = await this.factory.createTickets(amount, tokenAddress, name, symbol);
     await tx.wait();
-    console.log(tx);
+    const deployedTickets = await this.factory.deployedTickets(0);
+
+    console.log(deployedTickets);
   });
 });
