@@ -25,7 +25,9 @@ describe("TicketFactory", function () {
     await tx.wait();
 
     const deployedTickets = await this.factory.deployedTickets(0);
+
     this.ticketContract = await ethers.getContractAt("Ticket", deployedTickets);
+    this.ticketAddress = deployedTickets;
   });
 
   it("should be create a ticket", async function () {
@@ -42,7 +44,7 @@ describe("TicketFactory", function () {
   });
 
   it("should set ticket parameters with start", async function () {
-    const ticketPrice = ethers.parseEther("0.1");
+    const ticketPrice = ethers.parseEther("0.01");
     const duration = 3600; // 1 hour
     const limitedTickets = 100;
 
@@ -51,5 +53,24 @@ describe("TicketFactory", function () {
     expect(await this.ticketContract.ticketPrice()).to.equal(ticketPrice);
     expect(await this.ticketContract.endTime()).to.be.greaterThan(0);
     expect(await this.ticketContract.limitedTicket()).to.equal(limitedTickets);
+  });
+
+  it("should allow buying a ticket", async function () {
+    const ticketPrice = ethers.parseEther("0.01");
+    const duration = 3600; // 1 heure
+    const limitedTickets = 100;
+
+    await this.ticketContract.start(ticketPrice, duration, limitedTickets);
+
+    const input = this.instances.alice.createEncryptedInput(this.ticketAddress, this.signers.alice.address);
+    input.addAddress("0xa5e1defb98EFe38EBb2D958CEe052410247F4c80").add64(ticketPrice);
+    const encryptedTransferAmount = input.encrypt();
+    const tx = await this.ticketContract["buyTicket(bytes32,bytes32,bytes)"](
+      this.signers.bob.address,
+      encryptedTransferAmount.handles[0],
+      encryptedTransferAmount.inputProof,
+    );
+    const t2 = await tx.wait();
+    console.log(t2);
   });
 });
