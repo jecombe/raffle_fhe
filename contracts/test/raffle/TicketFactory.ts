@@ -1,6 +1,7 @@
 import { expect } from "chai";
 import { ethers } from "hardhat";
 
+import { deployEncryptedERC20Fixture } from "../encryptedERC20/EncryptedERC20.fixture";
 import { createInstances } from "../instance";
 import { getSigners, initSigners } from "../signers";
 import { deployFactoryFixture } from "./TicketFactory.fixture";
@@ -18,10 +19,13 @@ describe("TicketFactory", function () {
     this.instances = await createInstances(this.signers);
 
     const amount = 10;
-    const tokenAddress = "0x8ba1f109551bD432803012645Ac136ddd64DBA72";
+    const contractErc = await deployEncryptedERC20Fixture();
+    this.contractTokenAddress = await contractErc.getAddress();
+    this.erc20 = contractErc;
     const name = "Test Ticket";
     const symbol = "TTKT";
-    const tx = await this.factory.createTickets(amount, tokenAddress, name, symbol);
+
+    const tx = await this.factory.createTickets(amount, this.contractTokenAddress, name, symbol);
     await tx.wait();
 
     const deployedTickets = await this.factory.deployedTickets(0);
@@ -32,7 +36,7 @@ describe("TicketFactory", function () {
 
   it("should be create a ticket", async function () {
     const amount = 10;
-    const tokenAddress = "0x8ba1f109551bD432803012645Ac136ddd64DBA72";
+    const tokenAddress = "0x5b0437E348498297823821e86Ab144feB320450e";
     const name = "Test Ticket";
     const symbol = "TTKT";
 
@@ -62,15 +66,68 @@ describe("TicketFactory", function () {
 
     await this.ticketContract.start(ticketPrice, duration, limitedTickets);
 
+    const transaction = await this.erc20.mint(10000);
+    await transaction.wait();
+
     const input = this.instances.alice.createEncryptedInput(this.ticketAddress, this.signers.alice.address);
-    input.addAddress("0xa5e1defb98EFe38EBb2D958CEe052410247F4c80").add64(ticketPrice);
+    input.addAddress(this.signers.alice.address).add64(1);
     const encryptedTransferAmount = input.encrypt();
-    const tx = await this.ticketContract["buyTicket(bytes32,bytes32,bytes)"](
-      this.signers.bob.address,
-      encryptedTransferAmount.handles[0],
+
+    const txToken = await this.erc20["approve(address,bytes32,bytes)"](
+      this.ticketAddress,
+      encryptedTransferAmount.handles[1],
       encryptedTransferAmount.inputProof,
     );
-    const t2 = await tx.wait();
-    console.log(t2);
+    await txToken.wait();
+
+    const txTicket = await this.ticketContract["buyTicket(bytes32,bytes32,bytes)"](
+      encryptedTransferAmount.handles[0],
+      encryptedTransferAmount.handles[1],
+      encryptedTransferAmount.inputProof,
+    );
+    await txTicket.wait();
+
+    const participantsLength = await this.ticketContract.participantsLength();
+
+    expect(participantsLength).to.equal(1);
+  });
+
+  it("should fail if the tombola has not started", async function () {
+    const input = this.instances.alice.createEncryptedInput(this.ticketAddress, this.signers.alice.address);
+    input.addAddress(this.signers.alice.address).add64(1);
+    const encryptedTransferAmount = input.encrypt();
+
+    const endTime = await this.ticketContract.endTime();
+    expect(endTime).to.equal(0);
+
+    await expect(
+      this.ticketContract["buyTicket(bytes32,bytes32,bytes)"](
+        encryptedTransferAmount.handles[0],
+        encryptedTransferAmount.handles[1],
+        encryptedTransferAmount.inputProof,
+      ),
+    ).to.be.revertedWith("the raffle is not starting");
+  });
+
+  it("should fail if raffle has ended", async function () {
+    const ticketPrice = ethers.parseEther("0.01");
+    const duration = 1; // 1s
+
+    await this.ticketContract.start(ticketPrice, duration, 100);
+
+    await ethers.provider.send("evm_increaseTime", [duration + 1]);
+    await ethers.provider.send("evm_mine");
+
+    const input = this.instances.alice.createEncryptedInput(this.ticketAddress, this.signers.alice.address);
+    input.addAddress(this.signers.alice.address).add64(1);
+    const encryptedTransferAmount = input.encrypt();
+
+    await expect(
+      this.ticketContract["buyTicket(bytes32,bytes32,bytes)"](
+        encryptedTransferAmount.handles[0],
+        encryptedTransferAmount.handles[1],
+        encryptedTransferAmount.inputProof,
+      ),
+    ).to.be.revertedWith("Raffle has ended");
   });
 });
