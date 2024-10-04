@@ -81,6 +81,17 @@ contract Ticket is GatewayCaller, EncryptedERC20 {
 
         transferOwnership(address(this));
         mint(uint64(amount));
+
+        TFHE.allow(ZERO, address(this));
+        TFHE.allow(eNumberWin, address(this));
+        TFHE.allow(eWinner, address(this));
+        TFHE.allow(NO_ERROR, address(this));
+        TFHE.allow(ERROR, address(this));
+        TFHE.allow(eTaxes.eTaxFactory, address(this));
+        TFHE.allow(eTaxes.eTaxCreatorTicket, address(this));
+        TFHE.allow(eTaxes.eAmountCreatorTicket, address(this));
+        TFHE.allow(eTaxes.eAmountFeesFactory, address(this));
+        TFHE.allow(closestDifference, address(this));
     }
 
     function start(uint256 _ticketPrice, uint256 _duration, uint256 _limitedTicked) public {
