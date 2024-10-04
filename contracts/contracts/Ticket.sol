@@ -58,6 +58,11 @@ contract Ticket is GatewayCaller, EncryptedERC20 {
     //Mapping
     mapping(address => LastError) public _lastErrors;
 
+    //Events
+    event TicketPurchased(address indexed participant);
+    event WinnerPicked(uint);    event ErrorChanged(address indexed user);
+
+
     constructor(
         address _owner,
         uint amount,
@@ -123,7 +128,7 @@ contract Ticket is GatewayCaller, EncryptedERC20 {
         winnerDecrypt = decryptedInput;
         return decryptedInput;
     }
-    
+
     function start(uint256 _ticketPrice, uint256 _duration, uint256 _limitedTicked) public {
         ticketPrice = _ticketPrice;
         endTime = block.timestamp + _duration;
