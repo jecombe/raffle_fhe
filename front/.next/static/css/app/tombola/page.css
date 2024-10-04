@@ -1,0 +1,70 @@
+/*!*************************************************************************************************************************************************************************************************************************************************************************!*\
+  !*** css ./node_modules/next/dist/build/webpack/loaders/css-loader/src/index.js??ruleSet[1].rules[13].oneOf[7].use[2]!./node_modules/next/dist/build/webpack/loaders/postcss-loader/src/index.js??ruleSet[1].rules[13].oneOf[7].use[3]!./src/styles/Tombola.module.css ***!
+  \*************************************************************************************************************************************************************************************************************************************************************************/
+.Tombola_container__ll_je {
+    margin-top: 50px; /* Increased margin for more space at the top */
+  }
+  
+  .Tombola_formBox__WmS4u {
+    padding: 20px;
+    background-color: #f5f5f5; /* Light background for contrast */
+    border-radius: 8px;
+  }
+  
+  .Tombola_centeredFormBox__eN1Z0 {
+    padding: 20px;
+    background-color: #f5f5f5; /* Light background for contrast */
+    border-radius: 8px;
+    text-align: center; /* Center text in the box */
+    margin-bottom: 20px; /* Space below the centered form */
+  }
+  
+  .Tombola_notification__OrGiT {
+    padding: 10px;
+    background-color: rgba(255, 0, 0, 0.1); /* Light red background */
+    color: red; /* Red text */
+    border-radius: 8px;
+    text-align: center; /* Center text */
+    animation: Tombola_pulse__H105O 1.5s infinite; /* Add pulsing animation */
+  }
+  
+  @keyframes Tombola_pulse__H105O {
+    0% {
+      opacity: 0.7;
+    }
+    50% {
+      opacity: 1;
+    }
+    100% {
+      opacity: 0.7;
+    }
+  }
+  
+  .Tombola_link__KvmmI {
+    color: blue; /* Style the link */
+    text-decoration: underline; /* Underline the link */
+  }
+  
+  .Tombola_centerButton__z3LGt {
+    margin-bottom: 20px; /* Space below the top center button */
+  }
+  
+  .Tombola_formField__7Ejq0 {
+    margin-bottom: 10px; /* Space between form fields */
+    width: 100%; /* Full width */
+  }
+  
+  .Tombola_rightBox__Jk_QZ {
+    padding: 20px;
+    background-color: #f5f5f5; /* Same background as form */
+    border-radius: 8px;
+    height: 100%; /* Fill the height of the grid cell */
+    display: flex;
+    flex-direction: column;
+    align-items: center; /* Center content */
+  }
+  
+  .Tombola_leftGrid__LSMMC {
+    margin-left: 20px; /* Shift form box more to the left */
+  }
+  
