@@ -33,6 +33,15 @@ contract Ticket is GatewayCaller, EncryptedERC20 {
         uint timestamp;
     }
 
+    Taxes private eTaxes;
+    Owners public owners;
+
+    eaddress private eWinner;
+    address public winnerDecrypt;
+
+    euint64 public eNumberWin;
+    uint64 public numberWinDecrypt;
+
     uint256 public ticketPrice = 0 ether;
     uint public limitedTicket = 0;
 
@@ -40,6 +49,8 @@ contract Ticket is GatewayCaller, EncryptedERC20 {
     euint8 internal NO_ERROR;
     euint8 internal ERROR;
     euint64 internal ZERO;
+
+    euint64 closestDifference;
 
     //Mapping
     mapping(address => LastError) public _lastErrors;
@@ -52,6 +63,15 @@ contract Ticket is GatewayCaller, EncryptedERC20 {
         address _tokenAddress
     ) EncryptedERC20(_name, _symbol) {
         token = IEncryptedERC20(_tokenAddress);
+        owners.creatorTicket = _owner;
+        owners.factoryAddr = msg.sender;
+
+        eTaxes.eTaxCreatorTicket = TFHE.asEuint64(1);
+        eTaxes.eTaxFactory = TFHE.asEuint64(1);
+        eTaxes.eAmountCreatorTicket = TFHE.asEuint64(0);
+        eTaxes.eAmountFeesFactory = TFHE.asEuint64(0);
+        closestDifference = TFHE.asEuint64(type(uint64).max);
+
         NO_ERROR = TFHE.asEuint8(0);
         ERROR = TFHE.asEuint8(1);
         ZERO = TFHE.asEuint64(0);
