@@ -8,10 +8,21 @@ import "./interfaces/IEncryptedERC20.sol";
 import "./encryptedErc20/EncryptedERC20.sol";
 
 contract Ticket is GatewayCaller, EncryptedERC20 {
-    
     IEncryptedERC20 public token;
-
     uint256 public endTime = 0;
+
+    struct LastError {
+        euint8 error;
+        uint timestamp;
+    }
+
+    //Encrypted Errors management variable
+    euint8 internal NO_ERROR;
+    euint8 internal ERROR;
+    euint64 internal ZERO;
+
+    //Mapping
+    mapping(address => LastError) public _lastErrors;
 
     constructor(
         address _owner,
@@ -21,6 +32,9 @@ contract Ticket is GatewayCaller, EncryptedERC20 {
         address _tokenAddress
     ) EncryptedERC20(_name, _symbol) {
         token = IEncryptedERC20(_tokenAddress);
+        NO_ERROR = TFHE.asEuint8(0);
+        ERROR = TFHE.asEuint8(1);
+        ZERO = TFHE.asEuint64(0);
     }
 
     function buyTicket(einput _eUser, einput _eAmount, bytes calldata inputProof) external {
