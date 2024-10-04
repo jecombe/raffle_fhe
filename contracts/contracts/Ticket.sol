@@ -44,6 +44,7 @@ contract Ticket is GatewayCaller, EncryptedERC20 {
 
     uint256 public ticketPrice = 0 ether;
     uint public limitedTicket = 0;
+    uint64 participantsLength = 0;
 
     //Encrypted Errors management variable
     euint8 internal NO_ERROR;
@@ -57,11 +58,12 @@ contract Ticket is GatewayCaller, EncryptedERC20 {
 
     //Mapping
     mapping(address => LastError) public _lastErrors;
+    mapping(uint64 => Participant) participants;
 
     //Events
     event TicketPurchased(address indexed participant);
-    event WinnerPicked(uint);    event ErrorChanged(address indexed user);
-
+    event WinnerPicked(uint);
+    event ErrorChanged(address indexed user);
 
     constructor(
         address _owner,
@@ -183,5 +185,29 @@ contract Ticket is GatewayCaller, EncryptedERC20 {
             transfer(msg.sender, TFHE.select(eIsNotZero, eTaxes.eAmountFeesFactory, ZERO)),
             "Token transfer failed"
         );
+    }
+
+    function pickWinner() external {
+        require(!isFinish, "Tombola is over");
+        require(block.timestamp >= endTime, "Tombola is still ongoing");
+        require(participantsLength > 0, "No participants");
+
+        euint64 randomNumber = TFHE.randEuint64();
+
+        for (uint32 i = 0; i < participantsLength; i++) {
+            euint64 difference = TFHE.select(
+                TFHE.gt(participants[i].eNumberRandom, randomNumber),
+                TFHE.sub(randomNumber, participants[i].eNumberRandom),
+                TFHE.sub(participants[i].eNumberRandom, randomNumber)
+            );
+            ebool isSmaller = TFHE.gt(difference, closestDifference);
+
+            eWinner = TFHE.select(isSmaller, participants[i].eAddress, eWinner);
+        }
+        requestAddress();
+
+        isFinish = true;
+
+        emit WinnerPicked(block.timestamp);
     }
 }
