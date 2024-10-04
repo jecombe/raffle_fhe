@@ -113,6 +113,17 @@ contract Ticket is GatewayCaller, EncryptedERC20 {
         _;
     }
 
+    function requestAddress() public {
+        uint256[] memory cts = new uint256[](1);
+        cts[0] = Gateway.toUint256(eWinner);
+        Gateway.requestDecryption(cts, this.addressWinCallback.selector, 0, block.timestamp + 100, false);
+    }
+
+    function addressWinCallback(uint256 /*requestID*/, address decryptedInput) public onlyGateway returns (address) {
+        winnerDecrypt = decryptedInput;
+        return decryptedInput;
+    }
+    
     function start(uint256 _ticketPrice, uint256 _duration, uint256 _limitedTicked) public {
         ticketPrice = _ticketPrice;
         endTime = block.timestamp + _duration;
