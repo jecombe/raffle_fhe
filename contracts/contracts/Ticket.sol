@@ -17,7 +17,7 @@ contract Ticket is GatewayCaller, EncryptedERC20 {
     }
 
     uint256 public ticketPrice = 0 ether;
-    uint limitedTicket = 0;
+    uint public limitedTicket = 0;
 
     //Encrypted Errors management variable
     euint8 internal NO_ERROR;
