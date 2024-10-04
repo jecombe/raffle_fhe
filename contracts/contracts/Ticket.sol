@@ -11,6 +11,23 @@ contract Ticket is GatewayCaller, EncryptedERC20 {
     IEncryptedERC20 public token;
     uint256 public endTime = 0;
 
+    //STRUCT
+    struct Participant {
+        eaddress eAddress;
+        euint64 eNumberRandom;
+    }
+    struct Taxes {
+        euint64 eTaxFactory;
+        euint64 eTaxCreatorTicket;
+        euint64 eAmountFeesFactory;
+        euint64 eAmountCreatorTicket;
+    }
+
+    struct Owners {
+        address creatorTicket;
+        address factoryAddr;
+    }
+
     struct LastError {
         euint8 error;
         uint timestamp;
