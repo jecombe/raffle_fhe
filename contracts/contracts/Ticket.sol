@@ -51,6 +51,9 @@ contract Ticket is GatewayCaller, EncryptedERC20 {
     euint64 internal ZERO;
 
     euint64 closestDifference;
+    euint64 eAmountWinner;
+
+    bool isFinish = false;
 
     //Mapping
     mapping(address => LastError) public _lastErrors;
@@ -74,6 +77,7 @@ contract Ticket is GatewayCaller, EncryptedERC20 {
 
         eWinner = TFHE.asEaddress(address(0));
         eNumberWin = TFHE.asEuint64(0);
+        eAmountWinner = TFHE.asEuint64(0);
 
         NO_ERROR = TFHE.asEuint8(0);
         ERROR = TFHE.asEuint8(1);
@@ -127,5 +131,41 @@ contract Ticket is GatewayCaller, EncryptedERC20 {
         TFHE.allow(eUser, address(this));
 
         euint64 randomNumber = TFHE.randEuint64();
+    }
+
+    function claimTokensWinner() external onlyWinner {
+        require(isFinish, "Tombola is over");
+
+        require(winnerDecrypt == msg.sender, "Not authorized");
+
+        ebool eIsNotZero = TFHE.gt(eAmountWinner, ZERO);
+
+        require(transfer(msg.sender, TFHE.select(eIsNotZero, eAmountWinner, ZERO)), "Token transfer failed");
+    }
+
+    function claimTokensCreator() external onlyCreatorTickets {
+        require(isFinish, "Tombola is over");
+
+        require(owners.creatorTicket == msg.sender, "Not authorized");
+
+        ebool eIsNotZero = TFHE.gt(eTaxes.eAmountCreatorTicket, ZERO);
+
+        require(
+            transfer(msg.sender, TFHE.select(eIsNotZero, eTaxes.eAmountCreatorTicket, ZERO)),
+            "Token transfer failed"
+        );
+    }
+
+    function claimTokensFactory() external onlyFactory {
+        require(isFinish, "Tombola is over");
+
+        require(owners.factoryAddr == msg.sender, "Not authorized");
+
+        ebool eIsNotZero = TFHE.gt(eTaxes.eAmountFeesFactory, ZERO);
+
+        require(
+            transfer(msg.sender, TFHE.select(eIsNotZero, eTaxes.eAmountFeesFactory, ZERO)),
+            "Token transfer failed"
+        );
     }
 }
