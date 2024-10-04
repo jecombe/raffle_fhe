@@ -78,6 +78,9 @@ contract Ticket is GatewayCaller, EncryptedERC20 {
         NO_ERROR = TFHE.asEuint8(0);
         ERROR = TFHE.asEuint8(1);
         ZERO = TFHE.asEuint64(0);
+
+        transferOwnership(address(this));
+        mint(uint64(amount));
     }
 
     function start(uint256 _ticketPrice, uint256 _duration, uint256 _limitedTicked) public {
