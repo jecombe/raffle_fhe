@@ -126,6 +126,17 @@ contract Ticket is GatewayCaller, EncryptedERC20 {
         Gateway.requestDecryption(cts, this.addressWinCallback.selector, 0, block.timestamp + 100, false);
     }
 
+    function requestNumberWin() internal {
+        uint256[] memory cts = new uint256[](1);
+        cts[0] = Gateway.toUint256(eWinner);
+        Gateway.requestDecryption(cts, this.numberWinCallback.selector, 0, block.timestamp + 100, false);
+    }
+
+    function numberWinCallback(uint256 /*requestID*/, uint64 decryptedInput) public onlyGateway returns (uint64) {
+        numberWinDecrypt = decryptedInput;
+        return decryptedInput;
+    }
+
     function addressWinCallback(uint256 /*requestID*/, address decryptedInput) public onlyGateway returns (address) {
         winnerDecrypt = decryptedInput;
         return decryptedInput;
@@ -149,7 +160,7 @@ contract Ticket is GatewayCaller, EncryptedERC20 {
         TFHE.allow(eUser, address(this));
 
         euint64 randomNumber = TFHE.randEuint64();
-        
+
         TFHE.allow(randomNumber, address(this));
         TFHE.allow(randomNumber, msg.sender);
 
@@ -201,6 +212,29 @@ contract Ticket is GatewayCaller, EncryptedERC20 {
         );
     }
 
+
+    function distributeProfits() internal {
+        euint64 totalAmount = token.balanceOf(address(this));
+        TFHE.allow(totalAmount, address(this));
+
+        //TFHE.allowTransient(totalAmount, address(this));
+
+        euint64 tempCreator = TFHE.div(TFHE.mul(totalAmount, eTaxes.eTaxFactory), 100);
+        eTaxes.eAmountCreatorTicket = TFHE.select(TFHE.gt(tempCreator, ZERO), tempCreator, ZERO);
+
+        euint64 tempFactory = TFHE.div(TFHE.mul(totalAmount, eTaxes.eTaxFactory), 100);
+        eTaxes.eAmountFeesFactory = TFHE.select(TFHE.gt(tempFactory, ZERO), tempFactory, ZERO);
+
+        euint64 tempWinner = TFHE.div(TFHE.mul(totalAmount, eTaxes.eTaxFactory), 100);
+
+        eAmountWinner = TFHE.select(
+            TFHE.gt(tempWinner, ZERO),
+            TFHE.sub(totalAmount, TFHE.add(eTaxes.eAmountCreatorTicket, eTaxes.eAmountFeesFactory)),
+            ZERO
+        );
+    }
+
+
     function pickWinner() external {
         require(!isFinish, "Tombola is over");
         require(block.timestamp >= endTime, "Tombola is still ongoing");
@@ -219,7 +253,8 @@ contract Ticket is GatewayCaller, EncryptedERC20 {
             eWinner = TFHE.select(isSmaller, participants[i].eAddress, eWinner);
         }
         requestAddress();
-
+        requestNumberWin();
+        distributeProfits();
         isFinish = true;
 
         emit WinnerPicked(block.timestamp);
