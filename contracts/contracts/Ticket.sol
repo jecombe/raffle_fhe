@@ -94,6 +94,21 @@ contract Ticket is GatewayCaller, EncryptedERC20 {
         TFHE.allow(closestDifference, address(this));
     }
 
+    modifier onlyWinner() {
+        require(msg.sender == owners.factoryAddr, "Caller is not the winner");
+        _;
+    }
+
+    modifier onlyFactory() {
+        require(msg.sender == owners.factoryAddr, "Caller is not the factory");
+        _;
+    }
+
+    modifier onlyCreatorTickets() {
+        require(msg.sender == owners.creatorTicket, "Caller is not the creator of tickets");
+        _;
+    }
+
     function start(uint256 _ticketPrice, uint256 _duration, uint256 _limitedTicked) public {
         ticketPrice = _ticketPrice;
         endTime = block.timestamp + _duration;
