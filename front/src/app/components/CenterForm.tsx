@@ -26,7 +26,6 @@ const CenterForm: React.FC<CenteredFormProps> = ({ entries }) => {
         My Tombola stats
       </Typography>
 
-      {/* Table for Address and Reward */}
       <TableContainer component={Paper} style={{ marginTop: "20px" }}>
         <Table>
           <TableHead>

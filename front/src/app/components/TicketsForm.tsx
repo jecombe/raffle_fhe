@@ -44,12 +44,12 @@ const TicketForm: React.FC<CreateTicketProps> = ({ onTicketCreated }) => {
       await provider.send("eth_requestAccounts", []);
       const signer = await provider.getSigner();
 
-      const contractAddress = "0xfbB4636CFc0A2A0eA14c13994c0240FEc891C6Dd"; // Remplacez par votre adresse de contrat
+      const contractAddress = "0xfbB4636CFc0A2A0eA14c13994c0240FEc891C6Dd";
     
       const contract = new ethers.Contract(contractAddress, abi, signer);
 
 
-      const amount = parseUnits("1000", 18); // Convertit 1 token en wei
+      const amount = parseUnits("1000", 18);
 
       const tx = await contract.createTickets(
         parseUnits(formData.amount, 18),
@@ -63,7 +63,6 @@ const TicketForm: React.FC<CreateTicketProps> = ({ onTicketCreated }) => {
       const newReward = Number(formData.amount) * Number(formData.price);
       onTicketCreated(formData.address, newReward);
 
-      // Réinitialiser le formulaire
       setFormData({ amount: "", price: "", address: "", symbol: "" });
     } catch (error) {
       console.error("Error creating tickets:", error);

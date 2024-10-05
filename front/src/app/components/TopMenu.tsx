@@ -2,7 +2,7 @@
 import { ConnectButton } from "@rainbow-me/rainbowkit";
 import Link from "next/link";
 import React from "react";
-import styles from "../../styles/TopMenu.module.css"; // Import du fichier CSS pour les styles
+import styles from "../../styles/TopMenu.module.css";
 
 const TopMenu: React.FC = () => {
   return (
@@ -15,7 +15,7 @@ const TopMenu: React.FC = () => {
       <div className={styles.menu}>
         <ul className={styles.menuList}>
         <li className={styles.menuItem}>
-            <Link href="/tombola">Tombol</Link>
+            <Link href="/tombola">Raffle</Link>
           </li>
           <li className={styles.menuItem}>
             <Link href="/mint">Mint</Link>
