@@ -52,7 +52,7 @@ const TombolaStart: React.FC<TombolaStartProps> = ({ entries, onTombolaStarted }
       const duration = formData.duration;
 
       if (entries.length === 0) {
-        throw new Error("No entries available to start the tombola.");
+        throw new Error("No entries available to start the raffle.");
       }
 
       const tx = await contract.start(ticketPrice, duration, entries.length);
@@ -61,8 +61,8 @@ const TombolaStart: React.FC<TombolaStartProps> = ({ entries, onTombolaStarted }
       setFormData({ ticketPrice: "", duration: "" });
       onTombolaStarted();
     } catch (error) {
-      console.error("Error starting tombola:", error);
-      setError("Failed to start tombola.");
+      console.error("Error starting raffle:", error);
+      setError("Failed to start raffle.");
     } finally {
       setIsLoading(false);
     }
@@ -71,7 +71,7 @@ const TombolaStart: React.FC<TombolaStartProps> = ({ entries, onTombolaStarted }
   return (
     <Box className={styles.rightBox}>
       <Typography variant="h6" align="center">
-        Start Tombola
+        Start Raffle
       </Typography>
       {entries.length > 0 ? (
         <Grid container spacing={2}>
