@@ -19,7 +19,7 @@ import styles from "../../styles/Tombola.module.css";
 import Link from "next/link";
 import CenterForm from "../components/CenterForm";
 import TicketForm from "../components/TicketsForm";
-
+import abiFactory from "../../../abi/TicketFactory.json";
 const Tombola: React.FC = () => {
   const [formData, setFormData] = useState({
     symbol: "",
@@ -58,14 +58,9 @@ const Tombola: React.FC = () => {
       await provider.send("eth_requestAccounts", []);
       const signer = await provider.getSigner();
 
-      const contractAddress = "0x5a626654ab44371a9bEDE87AEc17fbE87E9fE0aC";
-      
-      const abi = [
-        "function createTickets(string memory symbol, uint256 amount, uint256 price, address buyer)",
-        "event TicketCreated(address indexed ticketAddress, address indexed owner)",
-      ];
+      const contractAddress = "0x5a68b96ACC46C627460EaB267e28Ac7c477FdFFE";
 
-      const contract = new ethers.Contract(contractAddress, abi, signer);
+      const contract = new ethers.Contract(contractAddress, abiFactory, signer);
 
       const tx = await contract.createTickets(
         formData.symbol,
@@ -77,20 +72,22 @@ const Tombola: React.FC = () => {
       await tx.wait();
 
       //EVENT
-      contract.once("TicketCreated", (ticketAddress: string, owner: string) => {
-        console.log("New ticket deployed at:", ticketAddress);
-        console.log("Ticket owner:", owner);
 
-        setTicketCreated(true);
-        const newEntry = {
-          address: ticketAddress,
-          reward: Number(formData.amount) * Number(formData.price),
-        };
-        setEntries([...entries, newEntry]);
-
-        setFormData({ ...formData, address: "", amount: "", price: "" });
-        setTicketCreated(true);
-      });
+      contract.on(
+        "TicketCreated",
+        async (ticketAddress: string, owner: string) => {
+          console.log(ticketAddress);
+          setTicketCreated(true);
+          const newEntry = {
+            address: ticketAddress,
+            reward: Number(formData.amount) * Number(formData.price),
+          };
+          setEntries([...entries, newEntry]);
+  
+          setFormData({ ...formData, address: "", amount: "", price: "" });
+          setTicketCreated(true);
+          
+        })
     } catch (error) {
       console.error("Error creating tickets:", error);
       setError("Failed to create tickets.");
