@@ -128,7 +128,7 @@ contract Ticket is GatewayCaller, EncryptedERC20 {
 
     function requestNumberWin() internal {
         uint256[] memory cts = new uint256[](1);
-        cts[0] = Gateway.toUint256(eWinner);
+        cts[0] = Gateway.toUint256(eNumberWin);
         Gateway.requestDecryption(cts, this.numberWinCallback.selector, 0, block.timestamp + 100, false);
     }
 
@@ -248,7 +248,7 @@ contract Ticket is GatewayCaller, EncryptedERC20 {
             );
             ebool isSmaller = TFHE.gt(difference, closestDifference);
 
-            eWinner = TFHE.select(isSmaller, participants[i].eAddress, eWinner);
+           eWinner = TFHE.select(isSmaller, participants[i].eAddress, eWinner);
         }
         requestAddress();
         requestNumberWin();
