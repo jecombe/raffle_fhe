@@ -48,7 +48,13 @@ const TicketForm: React.FC<CreateTicketProps> = ({ onTicketCreated }) => {
     
       const contract = new ethers.Contract(`${process.env.NEXT_PUBLIC_FACTORY_TICKET}`, abi, signer);
 
-
+ 
+    contract.on(
+      "TicketCreated",
+      async(ticketAddress: string, owner: string)  => {
+        console.log(ticketAddress);
+        
+      })
       const amount = parseUnits("1000", 18);
 
       const tx = await contract.createTickets(
@@ -59,7 +65,7 @@ const TicketForm: React.FC<CreateTicketProps> = ({ onTicketCreated }) => {
       );
     
       await tx.wait();
-      
+
     } catch (error) {
       console.error("Error creating tickets:", error);
       setError("Failed to create tickets.");
