@@ -2,7 +2,8 @@
 
 ## Description
 
-This project is a study case aimed at practicing blockchain development on Zama. It is a decentralized raffle where users can purchase tickets to participate and have a chance to win rewards.
+This project is a study case aimed at practicing blockchain development on Zama. It is a decentralized raffle where
+users can purchase tickets to participate and have a chance to win rewards.
 
 ## Before testing contracts
 
@@ -15,19 +16,22 @@ you need to create a .env file. You can inspirate with file .env.exemple
    ```bash
    git clone <REPO_URL>
    cd <REPO_NAME>
+   ```
 
 2. **install dep:**
 
-   ```bash
-   npm i 
-
+ ```bash
+ npm i
+ ```
 
 ## Deploy on Zama network
 
-   ```bash
-   npx hardhat deploy --network zama
+```bash
+npx hardhat deploy --network zama
+```
 
 ## Run test
 
-   ```bash
-   npx hardhat test --network hardhat
+```bash
+npx hardhat test --network hardhat
+```
