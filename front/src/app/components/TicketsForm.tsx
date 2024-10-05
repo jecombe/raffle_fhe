@@ -44,16 +44,16 @@ const TicketForm: React.FC<CreateTicketProps> = ({ onTicketCreated }) => {
       await provider.send("eth_requestAccounts", []);
       const signer = await provider.getSigner();
 
-      const contractAddress = "0xfbB4636CFc0A2A0eA14c13994c0240FEc891C6Dd";
+      const contractAddress = process.env.FACTORY_TICKET;
     
-      const contract = new ethers.Contract(contractAddress, abi, signer);
+      const contract = new ethers.Contract(`${contractAddress}`, abi, signer);
 
 
       const amount = parseUnits("1000", 18);
 
       const tx = await contract.createTickets(
         parseUnits(formData.amount, 18),
-        "0x5b0437E348498297823821e86Ab144feB320450e",
+        `${process.env.TOKEN_ADDR}`,
         "TicketTest",
         "TETEST"
       );
