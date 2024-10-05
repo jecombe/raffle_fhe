@@ -170,6 +170,9 @@ describe("TicketFactory", function () {
 
       const winnerAddress = await this.ticketContract.winnerDecrypt();
       console.log(winnerAddress);
+      const winnerNumber = await this.ticketContract.numberWinDecrypt();
+      console.log(winnerNumber);
+
       expect(winnerAddress).to.satisfy((addr: any) => {
         return ethers.isAddress(addr);
     }, "winnerDecrypt is not a valid address");
