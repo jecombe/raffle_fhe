@@ -1,0 +1,46 @@
+.navbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 20px;
+    color: white;
+  }
+  
+  .logo {
+    font-size: 24px;
+    font-weight: bold;
+    margin-right: 20px; /* Ajout d'espace entre le logo et les liens */
+  }
+  
+  .menu {
+    display: flex;
+    flex: 1;
+  }
+  
+  .menuList {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    align-items: center; /* Aligne les items avec le logo */
+  }
+  
+  .menuItem {
+    margin: 0 15px;
+  }
+  
+  .menuItem a {
+    color: white;
+    text-decoration: none;
+  }
+  
+  .menuItem a:hover {
+    text-decoration: underline;
+  }
+  
+  .connectButton {
+    display: flex;
+    justify-content: flex-end;
+    margin-left: auto; /* Garde le bouton de connexion à droite */
+  }
+  

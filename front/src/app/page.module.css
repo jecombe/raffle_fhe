@@ -1,0 +1,44 @@
+/* Centering the page content and adding padding for layout */
+.container {
+  color: #fff; /* White text for high contrast */
+  font-family: 'Arial', sans-serif; /* Readable font */
+  padding: 50px 20px;
+  text-align: center;
+}
+
+/* Styling the main title */
+.title {
+  font-family: 'Playfair Display', serif; /* Elegant serif font */
+  font-size: 3rem; /* Large title */
+  font-weight: bold;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: #ffcc00; /* Bright yellow title color */
+  margin-bottom: 20px;
+}
+
+/* Styling for paragraphs */
+.description {
+  font-size: 1.25rem; /* Larger paragraph text */
+  color: #ddd; /* Light gray text */
+  line-height: 1.6; /* Comfortable spacing between lines */
+  margin-bottom: 20px;
+}
+
+
+
+/* Button styling */
+.connectButton {
+  background-color: #ffcc00;
+  padding: 10px 20px;
+  border: none;
+  font-size: 1rem;
+  font-weight: bold;
+  text-transform: uppercase;
+  cursor: pointer;
+  margin-top: 20px;
+}
+
+.connectButton:hover {
+  background-color: #e6b800; /* Slightly darker yellow on hover */
+}
