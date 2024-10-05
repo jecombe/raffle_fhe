@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { BrowserProvider, ethers, parseEther } from "ethers";
 import {
   Container,
@@ -20,6 +20,7 @@ import Link from "next/link";
 import CenterForm from "../components/CenterForm";
 import TicketForm from "../components/TicketsForm";
 import abiFactory from "../../../abi/TicketFactory.json";
+
 const Tombola: React.FC = () => {
   const [formData, setFormData] = useState({
     symbol: "",
@@ -30,71 +31,47 @@ const Tombola: React.FC = () => {
   });
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
-  const [entries, setEntries] = useState<{ address: string; reward: number }[]>(
-    []
-  );
+  const [entries, setEntries] = useState<{ address: string; reward: number }[]>([]);
   const [tombolaStarted, setTombolaStarted] = useState(false);
   const [ticketCreated, setTicketCreated] = useState(false);
+  const contractAddress = "0x5a68b96ACC46C627460EaB267e28Ac7c477FdFFE";
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value,
-    });
+
+  const listenForTicketCreated = async () => {
+    if (!window.ethereum) return;
+
+    const provider = new BrowserProvider(window.ethereum);
+    const signer = await provider.getSigner();
+    const contract = new ethers.Contract(contractAddress, abiFactory, signer);
+
+    const ticketCreatedListener = (ticketAddress: string, owner: string) => {
+      console.log("New ticket deployed at:", ticketAddress);
+      console.log("Ticket owner:", owner);
+
+      setTicketCreated(true);
+      const newEntry = {
+        address: ticketAddress,
+        reward: Number(formData.amount) * Number(formData.price),
+      };
+      setEntries((prevEntries) => [...prevEntries, newEntry]);
+
+      setFormData({ ...formData, address: "", amount: "", price: "" });
+    };
+
+    contract.on("TicketCreated", ticketCreatedListener);
+
+    return () => {
+      contract.off("TicketCreated", ticketCreatedListener);
+    };
   };
 
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
+  useEffect(() => {
+    listenForTicketCreated();
 
-    try {
-      setIsLoading(true);
-      if (!window.ethereum) {
-        setError("MetaMask is not installed.");
-        setIsLoading(false);
-        return;
-      }
-
-      const provider = new BrowserProvider(window.ethereum);
-      await provider.send("eth_requestAccounts", []);
-      const signer = await provider.getSigner();
-
-      const contractAddress = "0x5a68b96ACC46C627460EaB267e28Ac7c477FdFFE";
-
-      const contract = new ethers.Contract(contractAddress, abiFactory, signer);
-
-      const tx = await contract.createTickets(
-        formData.symbol,
-        parseEther(formData.amount),
-        parseEther(formData.price),
-        formData.address
-      );
-
-      await tx.wait();
-
-      //EVENT
-
-      contract.on(
-        "TicketCreated",
-        async (ticketAddress: string, owner: string) => {
-          console.log(ticketAddress);
-          setTicketCreated(true);
-          const newEntry = {
-            address: ticketAddress,
-            reward: Number(formData.amount) * Number(formData.price),
-          };
-          setEntries([...entries, newEntry]);
-  
-          setFormData({ ...formData, address: "", amount: "", price: "" });
-          setTicketCreated(true);
-          
-        })
-    } catch (error) {
-      console.error("Error creating tickets:", error);
-      setError("Failed to create tickets.");
-    } finally {
-      setIsLoading(false);
-    }
-  };
+    return () => {
+   
+    };
+  }, []);
 
   const handleStartTombola = () => {
     setTombolaStarted(true);
