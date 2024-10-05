@@ -6,9 +6,7 @@ import {
   Grid,
   Typography,
   Button,
-  TextField,
   Box,
-  CircularProgress,
   Table,
   TableBody,
   TableCell,
@@ -17,8 +15,8 @@ import {
   TableRow,
   Paper,
 } from "@mui/material";
-import styles from '../../styles/Tombola.module.css';
-import Link from 'next/link';
+import styles from "../../styles/Tombola.module.css";
+import Link from "next/link";
 import CenterForm from "../components/CenterForm";
 import TicketForm from "../components/TicketsForm";
 
@@ -32,7 +30,11 @@ const Tombola: React.FC = () => {
   });
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
-  const [entries, setEntries] = useState<{ address: string; reward: number }[]>([]);
+  const [entries, setEntries] = useState<{ address: string; reward: number }[]>(
+    []
+  );
+  const [tombolaStarted, setTombolaStarted] = useState(false);
+  const [ticketCreated, setTicketCreated] = useState(false);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData({
@@ -58,7 +60,7 @@ const Tombola: React.FC = () => {
 
       const contractAddress = "0xYourContractAddress";
       const abi = [
-        "function createTickets(string memory symbol, uint256 amount, uint256 price, address buyer)"
+        "function createTickets(string memory symbol, uint256 amount, uint256 price, address buyer)",
       ];
 
       const contract = new ethers.Contract(contractAddress, abi, signer);
@@ -79,6 +81,7 @@ const Tombola: React.FC = () => {
       setEntries([...entries, newEntry]);
 
       setFormData({ ...formData, address: "", amount: "", price: "" });
+      setTicketCreated(true);
     } catch (error) {
       console.error("Error creating tickets:", error);
       setError("Failed to create tickets.");
@@ -87,12 +90,21 @@ const Tombola: React.FC = () => {
     }
   };
 
+  const handleStartTombola = () => {
+    setTombolaStarted(true);
+    console.log("Tombola started!");
+  };
+
   return (
     <Container maxWidth="md" className={styles.container}>
       <Box className={styles.notification}>
         <Typography variant="body1" color="inherit">
-          Please ensure you have WZAMA available. You can acquire it from the 
-          <Link href="/mint" className={styles.link}> mint page</Link>.
+          Please ensure you have WZAMA available. You can acquire it from the
+          <Link href="/mint" className={styles.link}>
+            {" "}
+            mint page
+          </Link>
+          .
         </Typography>
       </Box>
 
@@ -100,12 +112,40 @@ const Tombola: React.FC = () => {
 
       <Grid container spacing={3} style={{ marginTop: "20px" }}>
         <Grid item xs={6}>
-          <TicketForm onTicketCreated={(address, reward) => {
-            const newEntry = { address, reward };
-            setEntries([...entries, newEntry]);
-          }} />
+          {!ticketCreated ? (
+            <TicketForm
+              onTicketCreated={(address, reward) => {
+                const newEntry = { address, reward };
+                setEntries([...entries, newEntry]);
+                setTicketCreated(true);
+              }}
+            />
+          ) : (
+            <Typography variant="h6">Ticket Created!</Typography>
+          )}
         </Grid>
 
+        <Grid item xs={6}>
+          <Box className={styles.rightBox}>
+            <Typography variant="h6" align="center">
+              Start Tombola
+            </Typography>
+            {ticketCreated && !tombolaStarted && (
+              <Box className={styles.centerButton}>
+                <Button
+                  variant="contained"
+                  color="secondary"
+                  onClick={handleStartTombola}
+                >
+                  Start Tombola
+                </Button>
+              </Box>
+            )}
+          </Box>
+        </Grid>
+      </Grid>
+
+      <Grid container spacing={3} style={{ marginTop: "20px" }}>
         <Grid item xs={6}>
           <Box className={styles.rightBox}>
             <Typography variant="h6">Buy Tickets</Typography>
@@ -123,12 +163,16 @@ const Tombola: React.FC = () => {
                   {entries.map((entry, index) => (
                     <TableRow key={index}>
                       <TableCell>{entry.address}</TableCell>
-                      <TableCell>{formData.price}</TableCell> {/* Display the price */}
+                      <TableCell>{formData.price}</TableCell>
                       <TableCell>
                         <Button
                           variant="contained"
                           color="primary"
-                          onClick={() => console.log(`Buying ticket for ${entry.address} at price ${formData.price}`)}
+                          onClick={() =>
+                            console.log(
+                              `Buying ticket for ${entry.address} at price ${formData.price}`
+                            )
+                          }
                         >
                           Buy Ticket
                         </Button>
@@ -140,12 +184,12 @@ const Tombola: React.FC = () => {
             </TableContainer>
           </Box>
         </Grid>
-      </Grid>
 
-      <Grid container spacing={3} style={{ marginTop: "20px" }}>
-        <Grid item xs={12}>
+        <Grid item xs={6}>
           <Box className={styles.rightBox}>
-            <Typography variant="h6" align="center">Pick a Winner</Typography>
+            <Typography variant="h6" align="center">
+              Pick a Winner
+            </Typography>
 
             <TableContainer component={Paper} style={{ marginTop: "20px" }}>
               <Table>
