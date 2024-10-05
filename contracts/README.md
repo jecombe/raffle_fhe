@@ -35,3 +35,4 @@ npx hardhat deploy --network zama
 ```bash
 npx hardhat test --network hardhat
 ```
+The tests are located in the test folder. The raffle folder contains the tests for the raffle smart contract.
