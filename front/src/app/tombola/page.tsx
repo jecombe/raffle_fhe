@@ -18,7 +18,7 @@ import styles from "../../styles/Tombola.module.css";
 import Link from "next/link";
 import CenterForm from "../components/CenterForm";
 import TicketForm from "../components/TicketsForm";
-
+import TombolaStart from "../components/TicketStart";
 
 const Tombola: React.FC = () => {
   const [formData, setFormData] = useState({
@@ -63,21 +63,10 @@ const Tombola: React.FC = () => {
         </Grid>
 
         <Grid item xs={6}>
-          <Box className={styles.rightBox}>
-            <Typography variant="h6" align="center">
-              Start Tombola
-            </Typography>
-            {ticketCreated && !tombolaStarted && (
-              <Box className={styles.centerButton}>
-                <Button
-                  variant="contained"
-                  color="secondary"
-                >
-                  Start Tombola
-                </Button>
-              </Box>
-            )}
-          </Box>
+          <TombolaStart
+            entries={entries}
+            onTombolaStarted={() => setTombolaStarted(true)}
+          />
         </Grid>
       </Grid>
 
