@@ -140,7 +140,7 @@ describe("TicketFactory", function () {
   });
 
   describe("pickWinner", function () {
-    it("should fail if the tombola is already finished", async function () {
+    it("should pick a winner, decrypt winner and number win", async function () {
       // Start the tombola
       await this.ticketContract.start(1, 20, 2); // Set a ticket price, duration, and limited tickets
       const transaction = await this.erc20.mint(10000);
