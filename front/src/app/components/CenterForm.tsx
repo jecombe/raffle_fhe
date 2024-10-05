@@ -23,7 +23,7 @@ const CenterForm: React.FC<CenteredFormProps> = ({ entries }) => {
   return (
     <Box className={styles.centeredFormBox}>
       <Typography variant="h6" gutterBottom>
-        My Tombola stats
+        My Raffle stats
       </Typography>
 
       <TableContainer component={Paper} style={{ marginTop: "20px" }}>

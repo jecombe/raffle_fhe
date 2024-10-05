@@ -52,7 +52,6 @@ const Mint: React.FC = () => {
   // List of tokens with their contract addresses
   const tokens = [
     { symbol: "WZAMA", address: "0x5b0437E348498297823821e86Ab144feB320450e" },
-    { symbol: "TOKEN2", address: "0xAnotherTokenAddressHere" }, // Add more tokens as needed
   ];
 
 
