@@ -33,7 +33,7 @@
     "eslint": "^9.9.0",
     "eslint-config-prettier": "^8.5.0",
     "ethers": "^6.8.0",
-    "fhevm": "^0.5.9",
+    "fhevm": "^0.5.8",
     "fhevmjs": "^0.5.2",
     "fs-extra": "^10.1.0",
     "globals": "^15.9.0",
@@ -74,6 +74,7 @@
     "access": "public"
   },
   "scripts": {
+    "get-abi": "node ./scripts/get_abi.js",
     "preinstall": "node tasks/checkNodeVersion.js",
     "clean": "rimraf ./artifacts ./cache ./coverage ./types ./coverage.json && pnpm typechain",
     "compile": "cross-env TS_NODE_TRANSPILE_ONLY=true hardhat compile",

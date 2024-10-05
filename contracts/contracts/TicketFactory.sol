@@ -7,10 +7,9 @@ import "@openzeppelin/contracts/access/Ownable2Step.sol";
 contract TicketFactory is Ownable2Step {
     address[] public deployedTickets;
     mapping(address => address) ownerOfTicket;
-    event TicketCreated(address ticketAddress, address owner);
+    event TicketCreated(address indexed ticketAddress, address indexed owner);
 
     constructor() Ownable(msg.sender) {}
-
 
     function createTickets(uint amount, address _token, string memory _name, string memory _symbol) external {
         Ticket newTicket = new Ticket(msg.sender, amount, _name, _symbol, _token);
@@ -22,4 +21,7 @@ contract TicketFactory is Ownable2Step {
         emit TicketCreated(address(newTicket), msg.sender);
     }
 
+    function getDeployedTicketsCount() public view returns (uint) {
+        return deployedTickets.length;
+    }
 }

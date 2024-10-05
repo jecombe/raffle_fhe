@@ -68,13 +68,13 @@
     "anonymous": false,
     "inputs": [
       {
-        "indexed": false,
+        "indexed": true,
         "internalType": "address",
         "name": "ticketAddress",
         "type": "address"
       },
       {
-        "indexed": false,
+        "indexed": true,
         "internalType": "address",
         "name": "owner",
         "type": "address"
@@ -86,13 +86,6 @@
   {
     "inputs": [],
     "name": "acceptOwnership",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "claimTokensFactory",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"
@@ -146,12 +139,12 @@
   },
   {
     "inputs": [],
-    "name": "getDeployedTickets",
+    "name": "getDeployedTicketsCount",
     "outputs": [
       {
-        "internalType": "address[]",
+        "internalType": "uint256",
         "name": "",
-        "type": "address[]"
+        "type": "uint256"
       }
     ],
     "stateMutability": "view",
