@@ -7,9 +7,8 @@ import {
   Typography,
   CircularProgress,
 } from "@mui/material";
-import styles from '../../styles/Tombola.module.css'; // Importer le CSS module
-import abi from "../../../abi/TicketFactory.json"
-
+import styles from "../../styles/Tombola.module.css";
+import abi from "../../../abi/TicketFactory.json";
 
 interface CreateTicketProps {
   onTicketCreated: (address: string, reward: number) => void;
@@ -17,7 +16,7 @@ interface CreateTicketProps {
 
 const TicketForm: React.FC<CreateTicketProps> = ({ onTicketCreated }) => {
   const [formData, setFormData] = useState({
-    symbol:"",
+    symbol: "",
     amount: "",
     price: "",
     address: "",
@@ -45,16 +44,19 @@ const TicketForm: React.FC<CreateTicketProps> = ({ onTicketCreated }) => {
       const provider = new BrowserProvider(window.ethereum);
       await provider.send("eth_requestAccounts", []);
       const signer = await provider.getSigner();
-    
-      const contract = new ethers.Contract(`${process.env.NEXT_PUBLIC_FACTORY_TICKET}`, abi, signer);
 
- 
-    contract.on(
-      "TicketCreated",
-      async(ticketAddress: string, owner: string)  => {
-        console.log(ticketAddress);
-        
-      })
+      const contract = new ethers.Contract(
+        `${process.env.NEXT_PUBLIC_FACTORY_TICKET}`,
+        abi,
+        signer
+      );
+
+      contract.on(
+        "TicketCreated",
+        async (ticketAddress: string, owner: string) => {
+          console.log(ticketAddress);
+        }
+      );
       const amount = parseUnits("1000", 18);
 
       const tx = await contract.createTickets(
@@ -63,9 +65,16 @@ const TicketForm: React.FC<CreateTicketProps> = ({ onTicketCreated }) => {
         "TicketTest",
         "TETEST"
       );
-    
-      await tx.wait();
 
+      await tx.wait();
+      const deployedTicketsCount = await contract.getDeployedTicketsCount();
+
+      console.log(`Total deployed tickets: ${deployedTicketsCount}`);
+
+      const ticket = await contract.deployedTickets(
+        deployedTicketsCount - BigInt(1)
+      );
+      onTicketCreated(ticket, parseFloat(formData.price)); // Use relevant data
     } catch (error) {
       console.error("Error creating tickets:", error);
       setError("Failed to create tickets.");
@@ -103,7 +112,12 @@ const TicketForm: React.FC<CreateTicketProps> = ({ onTicketCreated }) => {
           required
           className={styles.formField}
         />
-        <Button variant="contained" color="primary" type="submit" disabled={isLoading}>
+        <Button
+          variant="contained"
+          color="primary"
+          type="submit"
+          disabled={isLoading}
+        >
           {isLoading ? <CircularProgress size={24} /> : "Create"}
         </Button>
         {error && <Typography color="error">{error}</Typography>}
