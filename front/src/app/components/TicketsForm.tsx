@@ -9,6 +9,8 @@ import {
 } from "@mui/material";
 import styles from '../../styles/Tombola.module.css'; // Importer le CSS module
 import abi from "../../../abi/TicketFactory.json"
+
+
 interface CreateTicketProps {
   onTicketCreated: (address: string, reward: number) => void;
 }
@@ -43,27 +45,21 @@ const TicketForm: React.FC<CreateTicketProps> = ({ onTicketCreated }) => {
       const provider = new BrowserProvider(window.ethereum);
       await provider.send("eth_requestAccounts", []);
       const signer = await provider.getSigner();
-
-      const contractAddress = process.env.FACTORY_TICKET;
     
-      const contract = new ethers.Contract(`${contractAddress}`, abi, signer);
+      const contract = new ethers.Contract(`${process.env.NEXT_PUBLIC_FACTORY_TICKET}`, abi, signer);
 
 
       const amount = parseUnits("1000", 18);
 
       const tx = await contract.createTickets(
         parseUnits(formData.amount, 18),
-        `${process.env.TOKEN_ADDR}`,
+        `${process.env.NEXT_PUBLIC_TOKEN}`,
         "TicketTest",
         "TETEST"
       );
     
       await tx.wait();
-
-      const newReward = Number(formData.amount) * Number(formData.price);
-      onTicketCreated(formData.address, newReward);
-
-      setFormData({ amount: "", price: "", address: "", symbol: "" });
+      
     } catch (error) {
       console.error("Error creating tickets:", error);
       setError("Failed to create tickets.");
