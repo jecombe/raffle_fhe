@@ -51,7 +51,6 @@ contract Ticket is GatewayCaller, EncryptedERC20 {
     euint8 internal ERROR;
     euint64 internal ZERO;
 
-    euint64 closestDifference;
     euint64 eAmountWinner;
 
     bool isFinish = false;
@@ -80,7 +79,6 @@ contract Ticket is GatewayCaller, EncryptedERC20 {
         eTaxes.eTaxFactory = TFHE.asEuint64(1);
         eTaxes.eAmountCreatorTicket = TFHE.asEuint64(0);
         eTaxes.eAmountFeesFactory = TFHE.asEuint64(0);
-        closestDifference = TFHE.asEuint64(type(uint64).max);
 
         eWinner = TFHE.asEaddress(address(0));
         eNumberWin = TFHE.asEuint64(0);
@@ -102,7 +100,6 @@ contract Ticket is GatewayCaller, EncryptedERC20 {
         TFHE.allow(eTaxes.eTaxCreatorTicket, address(this));
         TFHE.allow(eTaxes.eAmountCreatorTicket, address(this));
         TFHE.allow(eTaxes.eAmountFeesFactory, address(this));
-        TFHE.allow(closestDifference, address(this));
     }
 
     modifier onlyWinner() {
@@ -128,7 +125,7 @@ contract Ticket is GatewayCaller, EncryptedERC20 {
 
     function requestNumberWin() internal {
         uint256[] memory cts = new uint256[](1);
-        cts[0] = Gateway.toUint256(eWinner);
+        cts[0] = Gateway.toUint256(eNumberWin);
         Gateway.requestDecryption(cts, this.numberWinCallback.selector, 0, block.timestamp + 100, false);
     }
 
@@ -238,17 +235,26 @@ contract Ticket is GatewayCaller, EncryptedERC20 {
         require(block.timestamp >= endTime, "Tombola is still ongoing");
         require(participantsLength > 0, "No participants");
 
-        euint64 randomNumber = TFHE.randEuint64();
+        eNumberWin = TFHE.randEuint64();
+
+        euint64 winningPlayerNumber;
 
         for (uint32 i = 0; i < participantsLength; i++) {
-            euint64 difference = TFHE.select(
-                TFHE.gt(participants[i].eNumberRandom, randomNumber),
-                TFHE.sub(randomNumber, participants[i].eNumberRandom),
-                TFHE.sub(participants[i].eNumberRandom, randomNumber)
-            );
-            ebool isSmaller = TFHE.gt(difference, closestDifference);
+            euint64 playerNumber = participants[i].eNumberRandom;
 
-            eWinner = TFHE.select(isSmaller, participants[i].eAddress, eWinner);
+            if (i == 0) {
+                eWinner = participants[i].eAddress;
+                winningPlayerNumber = playerNumber;
+            }
+
+            eWinner = TFHE.select(
+                TFHE.lt(
+                    _absoluteDifference(playerNumber, eNumberWin),
+                    _absoluteDifference(winningPlayerNumber, eNumberWin)
+                ),
+                participants[i].eAddress,
+                eWinner
+            );
         }
         requestAddress();
         requestNumberWin();
@@ -256,5 +262,9 @@ contract Ticket is GatewayCaller, EncryptedERC20 {
         isFinish = true;
 
         emit WinnerPicked(block.timestamp);
+    }
+
+    function _absoluteDifference(euint64 a, euint64 b) private returns (euint64) {
+        return TFHE.select(TFHE.gt(a, b), TFHE.sub(a, b), TFHE.sub(b, a));
     }
 }
