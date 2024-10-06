@@ -142,16 +142,13 @@ describe("TicketFactory", function () {
 
   describe("pickWinner", function () {
     it("should pick a winner, decrypt winner and number win", async function () {
-      // Démarrer la loterie
       await this.ticketContract.start(1, 20, 2);
 
-      // Mint des tokens pour Alice
       const transaction = await this.erc20.mint(10000);
       await transaction.wait();
 
       console.log("user1: ", this.signers.alice.address, "user2:", this.signers.bob.address);
 
-      // Alice achète un ticket
       const input = this.instances.alice.createEncryptedInput(this.ticketAddress, this.signers.alice.address);
       input.addAddress(this.signers.alice.address).add64(1);
       const encryptedTransferAmount = input.encrypt();
@@ -170,7 +167,6 @@ describe("TicketFactory", function () {
       );
       await txTicket.wait();
 
-      // Bob achète un ticket
       const inputBob = this.instances.bob.createEncryptedInput(this.ticketAddress, this.signers.bob.address);
       inputBob.addAddress(this.signers.bob.address).add64(1);
       const encryptedTransferAmountBob = inputBob.encrypt();
@@ -205,6 +201,25 @@ describe("TicketFactory", function () {
         (num: any) => Number.isInteger(Number(num)),
         "numberWinDecrypt is not a valid integer",
       );
+    })
+
+
+    it("should revert because no praticipant", async function () {
+      await this.ticketContract.start(1, 20, 2);
+
+      const transaction = await this.erc20.mint(10000);
+      await transaction.wait();
+
+      console.log("user1: ", this.signers.alice.address, "user2:", this.signers.bob.address);
+
+      const input = this.instances.alice.createEncryptedInput(this.ticketAddress, this.signers.alice.address);
+      input.addAddress(this.signers.alice.address).add64(1);
+
+
+      await new Promise((resolve) => setTimeout(resolve, 20 * 1000));
+
+      await expect(this.ticketContract.pickWinner()).to.be.revertedWith("No participants");
+
     })
   });
 });
