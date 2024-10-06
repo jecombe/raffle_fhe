@@ -1,6 +1,7 @@
 import { expect } from "chai";
 import { ethers } from "hardhat";
 
+import { awaitAllDecryptionResults } from "../asyncDecrypt";
 import { deployEncryptedERC20Fixture } from "../encryptedERC20/EncryptedERC20.fixture";
 import { createInstances } from "../instance";
 import { getSigners, initSigners } from "../signers";
@@ -141,11 +142,16 @@ describe("TicketFactory", function () {
 
   describe("pickWinner", function () {
     it("should pick a winner, decrypt winner and number win", async function () {
-      // Start the tombola
-      await this.ticketContract.start(1, 20, 2); // Set a ticket price, duration, and limited tickets
+      // Démarrer la loterie
+      await this.ticketContract.start(1, 20, 2);
+
+      // Mint des tokens pour Alice
       const transaction = await this.erc20.mint(10000);
       await transaction.wait();
 
+      console.log("user1: ", this.signers.alice.address, "user2:", this.signers.bob.address);
+
+      // Alice achète un ticket
       const input = this.instances.alice.createEncryptedInput(this.ticketAddress, this.signers.alice.address);
       input.addAddress(this.signers.alice.address).add64(1);
       const encryptedTransferAmount = input.encrypt();
@@ -164,19 +170,41 @@ describe("TicketFactory", function () {
       );
       await txTicket.wait();
 
-      await new Promise((resolve) => setTimeout(resolve, 20 * 1000)); // wait 20 secondes
+      // Bob achète un ticket
+      const inputBob = this.instances.bob.createEncryptedInput(this.ticketAddress, this.signers.bob.address);
+      inputBob.addAddress(this.signers.bob.address).add64(1);
+      const encryptedTransferAmountBob = inputBob.encrypt();
 
-      await this.ticketContract.pickWinner();
+      const txTokenBob = await this.erc20["approve(address,bytes32,bytes)"](
+        this.ticketAddress,
+        encryptedTransferAmountBob.handles[1],
+        encryptedTransferAmountBob.inputProof,
+      );
+      await txTokenBob.wait();
 
-      const winnerAddress = await this.ticketContract.winnerDecrypt();
-      console.log(winnerAddress);
+      const txTicketBob = await this.ticketContract["buyTicket(bytes32,bytes32,bytes)"](
+        encryptedTransferAmountBob.handles[0],
+        encryptedTransferAmountBob.handles[1],
+        encryptedTransferAmountBob.inputProof,
+      );
+      await txTicketBob.wait();
+
+      await new Promise((resolve) => setTimeout(resolve, 20 * 1000));
+
+      const tx = await this.ticketContract.pickWinner();
+      await tx.wait();
+
+      await awaitAllDecryptionResults();
+
       const winnerNumber = await this.ticketContract.numberWinDecrypt();
-      console.log(winnerNumber);
+      const winner = await this.ticketContract.winnerDecrypt();
 
-      expect(winnerAddress).to.satisfy((addr: any) => {
-        return ethers.isAddress(addr);
-    }, "winnerDecrypt is not a valid address");
+      expect(winner).to.satisfy((addr: string) => ethers.isAddress(addr), "winnerDecrypt is not a valid address");
 
-    });
+      expect(winnerNumber).to.satisfy(
+        (num: any) => Number.isInteger(Number(num)),
+        "numberWinDecrypt is not a valid integer",
+      );
+    })
   });
 });
