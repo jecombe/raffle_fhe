@@ -18,6 +18,7 @@ const TombolaStart: React.FC<TombolaStartProps> = ({ entries, onTombolaStarted }
   const [formData, setFormData] = useState({
     ticketPrice: "",
     duration: "",
+    limit: ""
   });
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
@@ -51,12 +52,11 @@ const TombolaStart: React.FC<TombolaStartProps> = ({ entries, onTombolaStarted }
 
       const ticketPrice = parseUnits(formData.ticketPrice, 18);
       const duration = formData.duration;
-      const limit = 100;
 
-      const tx = await contract.start(ticketPrice, duration, limit);
+      const tx = await contract.start(ticketPrice, duration, formData.limit);
       await tx.wait();
 
-      setFormData({ ticketPrice: "", duration: "" });
+      setFormData({ ticketPrice: "", duration: "", limit: "" });
       onTombolaStarted();
     } catch (error) {
       console.error("Error starting raffle:", error);
@@ -90,6 +90,17 @@ const TombolaStart: React.FC<TombolaStartProps> = ({ entries, onTombolaStarted }
               label="Duration (seconds)"
               type="number"
               value={formData.duration}
+              onChange={handleChange}
+              fullWidth
+              required
+            />
+          </Grid>
+          <Grid item xs={12}>
+            <TextField
+              name="limit"
+              label="Limit"
+              type="number"
+              value={formData.limit}
               onChange={handleChange}
               fullWidth
               required
