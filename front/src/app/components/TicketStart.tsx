@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Box, Button, Grid, TextField, Typography, CircularProgress } from "@mui/material";
 import { BrowserProvider, ethers, parseUnits } from "ethers";
-import abi from "../../../abi/TicketFactory.json";
+import abi from "../../../abi/Ticket.json";
 import styles from "../../styles/Tombola.module.css";
 
 interface Entry {
@@ -41,21 +41,19 @@ const TombolaStart: React.FC<TombolaStartProps> = ({ entries, onTombolaStarted }
       const provider = new BrowserProvider(window.ethereum);
       await provider.send("eth_requestAccounts", []);
       const signer = await provider.getSigner();
-
+      console.log(entries[0].address);
+      
       const contract = new ethers.Contract(
-        process.env.NEXT_PUBLIC_FACTORY_TICKET!,
+        entries[0].address,
         abi,
         signer
       );
 
       const ticketPrice = parseUnits(formData.ticketPrice, 18);
       const duration = formData.duration;
+      const limit = 100;
 
-      if (entries.length === 0) {
-        throw new Error("No entries available to start the raffle.");
-      }
-
-      const tx = await contract.start(ticketPrice, duration, entries.length);
+      const tx = await contract.start(ticketPrice, duration, limit);
       await tx.wait();
 
       setFormData({ ticketPrice: "", duration: "" });
