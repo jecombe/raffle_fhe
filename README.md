@@ -10,4 +10,4 @@ In this folder, you will find the smart contracts for the raffle as well as test
 
 ## Folder front
 
-In this folder, you will find the front end of the application.
+(In progress) In this folder, you will find the front end of the application.
